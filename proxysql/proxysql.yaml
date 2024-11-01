@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxysql
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: proxysql
+        tier: frontend
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  values:
+                  - proxysql
+                  operator: In
+              topologyKey: "kubernetes.io/hostname"
+      restartPolicy: Always
+      containers:
+      - name: proxysql
+        image: proxysql:2.5.5
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: "config"
+          mountPath: "/etc/proxysql.cnf"
+          subPath: "proxysql.cnf"
+        ports:
+        - containerPort: 3306
+          name: "mysqldb"
+        - containerPort: 6032
+          name: "proxysql-admin"
+      volumes:
+      - name: "config"
+        configMap:
+          name: "proxysql"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxysql
+  labels:
+    app: proxysql
+    tier: frontend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3306
+    name: "mysqldb"
+  - port: 6032
+    name: "proxysql-admin"
+  selector:
+    app: proxysql
+    tier: frontend
