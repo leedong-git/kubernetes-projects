@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  labels:
+    app: redis
+data:
+#redis 설정
+  redis-config: |
+    maxmemory 4gb
+    maxmemory-policy allkeys-lru
+    maxclients 20000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis #label setting
+spec:
+  type: NodePort
+  ports:
+  - port: 6379
+    nodePort: 32379
+  selector:
+    app: redis #label setting
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis #label setting
+  template:
+    metadata:
+      labels:
+        app: redis #label setting
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.2.4
+        command:
+          - redis-server
+          - "/redis-master/redis.conf"
+        env:
+        - name: MASTER
+          value: "true"
+        ports:
+        - containerPort: 6379
+          name: redis
+        resources:
+          limits:
+            cpu: "1"
+        volumeMounts:
+        - mountPath: /redis-master-data
+          name: data
+        - mountPath: /redis-master
+          name: config
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: redis-config
+            items:
+            - key: redis-config
+              path: redis.conf
