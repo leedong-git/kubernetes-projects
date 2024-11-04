@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sonarqube-ingress
+  namespace: sonar
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 20M
+    nginx.ingress.kubernetes.io/proxy-body-size: 20M
+spec:
+  rules:
+  - host: sonar.dencomm.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sonarqube-svc
+            port:
+              number: 80

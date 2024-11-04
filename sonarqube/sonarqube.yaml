@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarqube
+  labels:
+    app: sonarqube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarqube
+  template:
+    metadata:
+      labels:
+        app: sonarqube
+    spec:
+      initContainers:
+#      - name: volume-mount-hack
+#        image: busybox
+#        command: ["sh", "-c", "chmod -R 777 /opt/sonarqube"]
+#        volumeMounts:
+#        - name: sonarqube-data
+#          mountPath: /opt/sonarqube/data
+#        - name: sonarqube-logs
+#          mountPath: /opt/sonarqube/logs
+#        - name: sonarqube-extensions
+#          mountPath: /opt/sonarqube/extensions
+      - name: increase-the-vm-max-map-count
+        image: busybox
+        securityContext:
+          privileged: true
+          runAsUser: 0
+        command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+      - name: increase-the-ulimit
+        image: busybox
+        securityContext:
+          privileged: true
+          runAsUser: 0
+        command: ['sh', '-c', 'ulimit -n 65536']
+      containers:
+      - name: sonarqube
+        image: sonarqube:9.9-community
+        ports:
+        - containerPort: 9000
+          protocol: TCP
+        env:
+        - name: SONAR_JDBC_URL
+          value: "jdbc:postgresql://postgres.db.svc:5432/sonarqube"
+        - name: SONAR_JDBC_USERNAME
+          value: "postgres"
+        - name: SONAR_JDBC_PASSWORD
+          value: "dencomm4900"
+        volumeMounts:
+        - name: sonarqube-data
+          mountPath: /opt/sonarqube/data
+        - name: sonarqube-logs
+          mountPath: /opt/sonarqube/logs
+        - name: sonarqube-extensions
+          mountPath: /opt/sonarqube/extensions
+      volumes:
+      - name: sonarqube-data
+        persistentVolumeClaim: 
+          claimName: sonarqube-data-pvc
+      - name: sonarqube-logs
+        persistentVolumeClaim: 
+          claimName: sonarqube-logs-pvc
+      - name: sonarqube-extensions
+        persistentVolumeClaim: 
+          claimName: sonarqube-extensions-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarqube-svc
+  labels:
+    app: sonarqube
+spec:
+  selector:
+    app: sonarqube
+  ports:
+    - port: 80
+      targetPort: 9000
