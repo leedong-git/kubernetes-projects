@@ -5,7 +5,7 @@ metadata:
   labels:
     app: postgres
 data:
-  POSTGRES_PASSWORD: dencomm4900
+  POSTGRES_PASSWORD: password123
   init: |
     CREATE TABLE importantdata (
     id int4 PRIMARY KEY,

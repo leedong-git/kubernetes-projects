@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 20M
 spec:
   rules:
-  - host: sonar.dencomm.ai
+  - host: sonar.domain.com
     http:
       paths:
       - path: /
