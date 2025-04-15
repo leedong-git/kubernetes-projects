@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: persistent-volume-1
+spec:
+  capacity:
+    storage: 10G
+  accessModes:
+  - ReadWriteOnce
+  local:
+    path: /mnt/airflow/pv1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - {key: kubernetes.io/hostname, operator: In, values: [worker]}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: persistent-volume-2
+spec:
+  capacity:
+    storage: 10G
+  accessModes:
+  - ReadWriteOnce
+  local:
+   path: /mnt/airflow/pv2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - {key: kubernetes.io/hostname, operator: In, values: [worker]}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: persistent-volume-3
+spec:
+  capacity:
+    storage: 110G
+  accessModes:
+  - ReadWriteOnce
+  local:
+    path: /mnt/airflow/pv3
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - {key: kubernetes.io/hostname, operator: In, values: [worker]}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: persistent-volume-4
+spec:
+  capacity:
+    storage: 110G
+  accessModes:
+  - ReadWriteOnce
+  local:
+    path: /mnt/airflow/pv4
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - {key: kubernetes.io/hostname, operator: In, values: [worker]}

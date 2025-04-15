@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: springboot-additional-scrape-config
+#  namespace: monitoring
+data:
+  prometheus-additional.yaml: |
+    - job_name: "springboot-app"
+      metrics_path: "/actuator/prometheus"
+      scrape_interval: 15s
+      static_configs:
+        - targets:
+            - "dentium-backend.default.svc"
+

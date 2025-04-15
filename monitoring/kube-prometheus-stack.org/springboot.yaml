@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dentium-backend
+spec:
+  endpoints:
+  - interval: 10s
+    path: /actuator/prometheus
+    port: web
+  selector:
+    matchLabels:
+      app: dentium-backend
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: dentium-backend
+spec:
+  selector:
+    matchLabels:
+      app: dentium-backend
+  podMetricsEndpoints:
+  - port: web
+    interval: 10s
+    path: /actuator/prometheus
