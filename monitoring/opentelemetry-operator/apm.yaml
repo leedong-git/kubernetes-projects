@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: otel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
+    spec:
+      containers:
+      - name: app
+        image: repo.dencomm.com/library/base-sample:1.0.5
+        ports:
+        - name: web
+          containerPort: 8080
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  selector:
+    app: app
+  ports:
+  - name: web
+    port: 8080
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: app
+  labels:
+    team: frontend
+spec:
+  selector:
+    matchLabels:
+      app: app
+  endpoints:
+  - port: web
+    path: /actuator/prometheus
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+#  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 20M
+    nginx.ingress.kubernetes.io/proxy-body-size: 20M
+spec:
+  rules:
+  - host: apm.dencomm.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app
+            port:
+              number: 8080

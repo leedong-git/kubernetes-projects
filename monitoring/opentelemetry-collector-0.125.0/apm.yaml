@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-spring-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-spring-app
+  template:
+    metadata:
+      labels:
+        app: my-spring-app
+    spec:
+      containers:
+      - name: my-spring-app
+        image: repo.dencomm.com/library/apm-sample:1.0.6
+        ports:
+        - name: web
+          containerPort: 8080
+        env:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: http://tempo.monitoring.svc:4317
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          value: grpc
+        - name: OTEL_SERVICE_NAME
+          value: app
+        - name: OTEL_METRICS_EXPORTER
+          value: none
+        
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-spring-app
+  labels:
+    app: my-spring-app
+spec:
+  selector:
+    app: my-spring-app
+  ports:
+  - name: web
+    port: 8080
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: my-spring-app
+  labels:
+    team: frontend
+spec:
+  selector:
+    matchLabels:
+      app: my-spring-app
+  endpoints:
+  - port: web
+    path: /actuator/prometheus
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: my-spring-app
+  labels:
+    team: frontend
+spec:
+  selector:
+    matchLabels:
+      app: my-spring-app
+  podMetricsEndpoints:
+  - port: web
+    path: /actuator/prometheus
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-spring-app-ingress
+#  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    my-spring-app.ingress.kubernetes.io/rewrite-target: /
+    my-spring-app.ingress.kubernetes.io/client-body-buffer-size: 20M
+    my-spring-app.ingress.kubernetes.io/proxy-body-size: 20M
+spec:
+  rules:
+  - host: apm.dencomm.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-spring-app
+            port:
+              number: 8080

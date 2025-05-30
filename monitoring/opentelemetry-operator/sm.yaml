@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: otel-collector-monitoring
+  namespace: otel
+  labels:
+    release: prometheus  # <- Prometheus에서 바라보는 라벨 (kube-prometheus-stack 기준)
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: opentelemetry-collector
+      app.kubernetes.io/instance: otel.otel
+      app.kubernetes.io/managed-by: opentelemetry-operator
+      app.kubernetes.io/part-of: opentelemetry
+  namespaceSelector:
+    matchNames:
+      - otel
+  endpoints:
+    - port: monitoring
+      interval: 15s
+      path: /metrics

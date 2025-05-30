@@ -1,0 +1,25 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: my-instrumentation
+spec:
+  exporter:
+    endpoint: http://otel-col-opentelemetry-collector.otel.svc:4317
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+  java:
+    env:
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: service.name=$(POD_NAME),service.namespace=$(POD_NAMESPACE)
+  nodejs:
+    env:
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: service.name=$(POD_NAME),service.namespace=$(POD_NAMESPACE)
+  python:
+    env:
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: service.name=$(POD_NAME),service.namespace=$(POD_NAMESPACE)

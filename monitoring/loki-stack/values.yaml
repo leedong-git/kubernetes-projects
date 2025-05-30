@@ -22,6 +22,13 @@ loki:
     uid: ""
   image:
     tag: 2.9.3
+#  serviceMonitor:
+#    enabled: true
+  config:
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 168h  # 7일
+
 
 promtail:
   enabled: true
