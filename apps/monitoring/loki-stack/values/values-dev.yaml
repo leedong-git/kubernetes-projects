@@ -1,0 +1,5 @@
+test_pod:
+  enabled: false
+loki:
+  serviceMonitor:
+    enabled: true

@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:dencomm4900/cd-repo.git
+    targetRevision: HEAD
+    path: apps/otel/opentelemetry-operator
+    helm:
+      releaseName: otel
+      valueFiles:
+        - values/values-dev.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: otel
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

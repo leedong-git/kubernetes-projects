@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:dencomm4900/cd-repo.git
+    targetRevision: HEAD
+    path: apps/monitoring/tempo
+    helm:
+      releaseName: tempo
+      valueFiles:
+        - values/values-dev.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

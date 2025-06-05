@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: argocd
+spec:
+  project: default
+
+  # 1) 자식 App들이 모여있는 경로를 지정
+  source:
+    repoURL: 'git@bitbucket.org:dencomm4900/cd-repo.git'
+    targetRevision: HEAD
+    path: apps/argocd/application/dev   # ← 이 디렉터리 전체를 스캔
+    directory:
+      recurse: true
+
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd    # 부모 App-of-Apps 본인은 argocd 네임스페이스에 생성
+
+  # 3) 자동 동기화 설정 (원한다면)
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

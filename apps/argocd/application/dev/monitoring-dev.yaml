@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@bitbucket.org:dencomm4900/cd-repo.git
+    targetRevision: HEAD
+    path: apps/monitoring/kube-prometheus-stack
+    helm:
+      releaseName: prometheus
+      valueFiles:
+        - values/values-dev.yaml  # 상대경로 기준 values 파일 지정
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
