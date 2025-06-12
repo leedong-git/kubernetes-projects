@@ -8,37 +8,39 @@ Argo CD 기반 GitOps 방식으로 Prometheus, Loki, Tempo, OpenTelemetry 등 �
 
 ```
 cd-repo/
-└── apps/
-├── argocd/
-│ └── application/
-│ └── {test, dev, prd}/
-│ ├── app-of-apps.yaml
-│ ├── prometheus.yaml
-│ ├── loki.yaml
-│ ├── tempo.yaml
-│ ├── otel.yaml
-│ └── otel-col.yaml
-├── monitoring/
-│ ├── grafana-dashboard/
-│ │ ├── dashboard.yaml
-│ │ └── kustomization.yaml
-│ ├── kube-prometheus-stack/
-│ │ └── values/
-│ │ └── values-{test,dev,prd}.yaml
-│ ├── loki-stack/
-│ │ └── values/
-│ │ └── values-{test,dev,prd}.yaml
-│ └── tempo/
-│ └── values/
-│ └── values-{test,dev,prd}.yaml
-└── otel/
-└── opentelemetry-operator/
-├── values/
-│ └── values-{test,dev,prd}.yaml
-├── instrumentation.yaml
-├── otel-col.yaml
-├── sm.yaml
-└── kustomization.yaml
+├── apps/
+│   ├── argocd/
+│   │   └── application/
+│   │       └── {test, dev, prd}/
+│   │           ├── grafana-dashboard.yaml
+│   │           ├── monitoring.yaml
+│   │           ├── loki.yaml
+│   │           ├── tempo.yaml
+│   │           ├── otel.yaml
+│   │           └──otel-col.yaml
+│   ├── monitoring/
+│   │   ├──grafana-dashboard/
+│   │   │   └── grafana-dashboard.yaml          # 그라파나 기본 대시보드 설정
+│   │   │   └── kustomization.yaml 
+│   │   ├── kube-prometheus-stack/
+│   │   │   └── values/
+│   │   │       └── valuesvalues-{test,dev,prd}.yaml
+│   │   ├── loki-stack/
+│   │   │   └── values/
+│   │   │       └── values-{test,dev,prd}.yaml
+│   │   ├── tempo/
+│   │   │   └── values/
+│   │   │       └── values-{test,dev,prd}.yaml
+│   └── otel/
+│       └── opentelemetry-operator/
+│           ├── values/
+│           │   └── values-{test,dev,prd}.yaml
+│           ├── instrumentation.yaml
+│           ├── otel-col.yaml
+│           ├── sm.yaml
+│           └── kustomization.yaml
+└── README.md                                    # 레포지토리 문서
+
 ```
 
 ---
@@ -69,8 +71,11 @@ spec:
 ```
 
 ## 📌 유의사항
+
+```bash
 app-of-apps.yaml 파일은 각 환경별 BastionVM에 있고, 수동으로 실행합니다.
 app-of-apps는 directory.recurse: true 설정이 있어야 하위 앱을 자동 인식합니다.
 ServerSideApply=true로 CRD가 큰 경우 오류 회피 가능
+```
 
 ---
